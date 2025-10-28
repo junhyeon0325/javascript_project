@@ -16,7 +16,7 @@
     />
 
     <script type="text/javascript">
-      const server = "http://localhost:9090";
+      const server = "http://www.yd3team.store/api";
 
       document.addEventListener("DOMContentLoaded", function (event) {
         // DOM이 완성된 후 코드를 실행
@@ -30,7 +30,7 @@
 
       // 설비 전체 조회
       async function getEquipList() {
-        let equipList = await fetch(`http://www.yd3team.store/api/equipment`)
+        let equipList = await fetch(`${server}/equipment`)
           .then((res) => res.json())
           .catch((err) => console.log(err));
 
@@ -73,7 +73,7 @@
       // 설비등록
       async function insertEquipInfo() {
         let equipInfo = getFormInfo();
-        let result = await fetch(`http://www.yd3team.store/api/equipment`, {
+        let result = await fetch(`${server}/equipment`, {
           method: "post",
           headers: {
             "Content-type": "application/json",
@@ -110,9 +110,7 @@
 
       // 설비유형을 가져오는 코드
       async function getEquipmentsList() {
-        let equipmentsList = await fetch(
-          "http://www.yd3team.store/api/equipments"
-        )
+        let equipmentsList = await fetch(`${server}/equipments`)
           .then((res) => res.json())
           .catch((err) => console.log(err));
 
@@ -123,19 +121,17 @@
 
       // 설비유형 태그를 만드는 코드
       function createOptionTag(code, name) {
-        // let optiontag = `<option value="${code}">${name}</option>`;
-        // let options = document.querySelector(".form-horizontal select");
-        // options.insertAdjacentHTML("beforeend", optiontag);
-
+        let optiontag = `<option value="${code}">${name}</option>`;
+        let options = document.querySelector(".form-horizontal select");
+        options.insertAdjacentHTML("beforeend", optiontag);
         // 1. <option value="">선택</option> 생성
-        let optionTag = document.createElement("option");
-        optionTag.value = code;
-        optionTag.textContent = name;
-
+        // let optionTag = document.createElement("option");
+        // optionTag.value = code;
+        // optionTag.textContent = name;
         // 2. <select/> 탐색
-        document
-          .querySelector('#form1 [name="equip_type_name"]')
-          .insertAdjacentElement("beforeend", optionTag);
+        // document
+        //   .querySelector('#form1 [name="equip_type_name"]')
+        //   .insertAdjacentElement("beforeend", optionTag);
       }
 
       // 사원단건조회
@@ -145,20 +141,31 @@
         let firstTdTag = trTag.firstElementChild;
         let equip_code = firstTdTag.textContent;
 
-        let equipInfo = await fetch(
-          `http://www.yd3team.store/api/equipment/${equip_code}`
-        )
+        let equipInfo = await fetch(`${server}/equipment/${equip_code}`)
           .then((res) => res.json())
           .catch((err) => console.log(err));
+
         form1.querySelector('[name="equip_code"]').value = equipInfo.equip_code;
         form1.querySelector('[name="equip_name"]').value = equipInfo.equip_name;
-        form1.querySelector('[name="equip_type_name"]').value =
-          equipInfo.equip_type_name;
-        form1.querySelector('[name="install_date"]').value =
-          equipInfo.install_date;
-        form1.querySelector('[name="mfg_dt"]').value = equipInfo.mfg_dt;
+        form1.querySelector('[name="equip_type"]').value = equipInfo.equip_type;
+
         form1.querySelector('[name="equip_status_name"]').value =
           equipInfo.equip_status_name;
+
+        function dateForm(e) {
+          let d = new Date(e);
+          let year = d.getFullYear();
+          let mon = ("0" + (d.getMonth() + 1)).slice(-2);
+          let date = ("0" + d.getDate()).slice(-2);
+          let idForm = year + "-" + mon + "-" + date;
+          return idForm;
+        }
+        form1.querySelector('[name="install_date"]').value = dateForm(
+          equipInfo.install_date
+        );
+        form1.querySelector('[name="mfg_dt"]').value = dateForm(
+          equipInfo.mfg_dt
+        );
       }
     </script>
   </head>
@@ -212,11 +219,7 @@
               </div>
               <div class="form-group m-3">
                 <label>설비유형:</label>
-                <select
-                  class="form-control"
-                  name="equip_type_name"
-                  id="equip_type_name"
-                >
+                <select class="form-control" name="equip_type" id="equip_type">
                   <option value=""></option>
                 </select>
               </div>
